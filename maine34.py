@@ -83,40 +83,38 @@ def get_current_spotify():    #get current spotify
             print('ola ya un soucis sp artist')
         k = 0
 
-    #comptespodbug()
+
+
+
 def get_current_ytb():
     ytresp = ytmusic.get_playlist(playlistId=plYTB_id)
     ytitem = ytresp['tracks']
     k = 0
     youtube_playlist_track_name = []
     youtube_playlist_artist = []
+    youtube_playlist_isrc = []
     for items in ytitem:
         youtube_playlist_track_name.append(items['title'])
         youtube_playlist_artist.append(items['artists'][0]['name'])
         k = k+1
+        youtube_playlist_isrc.append(get_isrc_(items['title'],items['artists'][0]['name']))
+    return(youtube_playlist_track_name,yout)
 
 
 
 
 
 
-    for items in youtube_playlist_track_name:
-        k=k-1
-        artist = youtube_playlist_artist[k]
-        artist = artist.replace(' ', '+')
-        name = items.replace(' ', '+')
-        spoisrcquery = name + '+' + artist + '&type=track&limit=1'
-        search_results = sp.search(q=spoisrcquery)
-        if search_results["tracks"]["items"] == []:
-            print('Nothing found for ' + items)
-        else:
-            youtube_playlist_isrc = search_results['tracks']['items'][0]['external_ids']
-
-print(spotify_playlist_isrc)
-print(spotify_playlist_artist)
-print(spotify_playlist_track_name)
 
 
-get_current_ytb()
+def get_isrc_(track_name,artist):
+    artist = artist.replace(' ', '+')
+    name = track_name.replace(' ', '+')
+    spoisrcquery = name + '+' + artist + '&type=track&limit=1'
+    search_results = sp.search(q=spoisrcquery)
+    if search_results["tracks"]["items"] == []:
+        print('Nothing found for ' + track_name + artist)
+    else:
+        return(search_results['tracks']['items'][0]['external_ids'])
 
-#Kinky+People&type=track&limit=1
+
