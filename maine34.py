@@ -40,6 +40,21 @@ youtube_playlist_artist = []
 youtube_playlist_track_name = []
 diffs = []
 
+spotify_playlist_isrc_loaded =[]
+spotify_playlist_track_name_loaded =[]
+spotify_playlist_artist_loaded =[]
+spotify_playlist_id_loaded =[]
+
+youtube_playlist_isrc_loaded =[]
+youtube_playlist_track_name_loaded =[]
+youtube_playlist_artist_loaded =[]
+youtube_playlist_id_loaded =[]
+
+final_playlist_track_name = []
+final_playlist_artist = []
+final_playlist_isrc = []
+final_playlist_id = []
+
 separator = '(feat'
 
 
@@ -48,34 +63,15 @@ def get_current_spotify():    #get current spotify
 
     spoplaylist = sp.playlist_items(plSPO_id)
     spoitemplaylist = spoplaylist["items"]
-
     for items in spoitemplaylist:
         spotify_playlist_isrc.append(items['track']['external_ids']['isrc'])
         spotify_playlist_track_name.append(items['track']['name'])
         spotify_playlist_artist.append(items['track']['artists'][0]['name'])
         spotify_playlist_id.append(get_id(items['track']['name'],items['track']['artists'][0]['name']))
 
-    return(spotify_playlist_track_name,spotify_playlist_artist,spotify_playlist_isrc,spotify_playlist_id)
+    a = [[spotify_playlist_track_name[i], spotify_playlist_artist[i], spotify_playlist_isrc[i],spotify_playlist_id[i]] for i in range(len(spotify_playlist_track_name))]
 
-
-def comptespodbug():
-    #DEBUG recomptage de toutes les listes
-    k=0
-    for items in spotify_playlist_isrc:
-        k = k+1
-    if k != l:
-        print('ola ya un soucis isrcs')
-    k = 0
-    for items in spotify_playlist_track_name:
-        k = k+1
-    if k != l:
-        print('ola ya un soucistrckn ame')
-    k = 0
-    for items in spotify_playlist_artist:
-        k = k+1
-    if k != l:
-        print('ola ya un soucis sp artist')
-    k = 0
+    return a
 
 
 
@@ -90,7 +86,9 @@ def get_current_ytb():
         youtube_playlist_isrc.append(get_isrc_(items['title'],items['artists'][0]['name']))
         youtube_playlist_id.append(get_id(items['title'],items['artists'][0]['name']))
         k = k+1
-    return(youtube_playlist_track_name,youtube_playlist_artist,youtube_playlist_isrc,youtube_playlist_id)
+
+    return [[youtube_playlist_track_name[i], youtube_playlist_artist[i], youtube_playlist_isrc[i], youtube_playlist_id[i]]
+         for i in range(len(youtube_playlist_track_name))]
 
 
 
@@ -238,16 +236,59 @@ def save_ytb():
 
 
 
+def merde():
 
-spotify_playlist_isrc_loaded =[]
-spotify_playlist_track_name_loaded =[]
-spotify_playlist_artist_loaded =[]
-spotify_playlist_id_loaded =[]
+    current_spo = []
 
-youtube_playlist_isrc_loaded =[]
-youtube_playlist_track_name_loaded =[]
-youtube_playlist_artist_loaded =[]
-youtube_playlist_id_loaded =[]
+
+    spotify_playlist_track_name = current_spo[0]
+    spotify_playlist_artist = current_spo[1]
+    spotify_playlist_isrc = current_spo[2]
+    spotify_playlist_id = current_spo[3]
+
+    final_playlist_track_name = spotify_playlist_track_name
+    final_playlist_artist = spotify_playlist_artist
+    final_playlist_isrc = spotify_playlist_isrc
+    final_playlist_id = spotify_playlist_id
+
+
+def define_track(track_name,artist,isrc,id,pos,):
+    track = []
+    poc = str(pos)
+    track.append(poc)
+    track.append(track_name)
+    track.append(artist)
+    track.append(isrc)
+    track.append(id)
+    return(track)
+
+def list_tracks(track_name,artist,isrc,id):
+    k = 0
+    for items in track_name:
+        laliste = define_track(track_name[k],artist[k],isrc[k],id[k],k)
+        k=k+1
+    return(laliste)
+
+#print(list_tracks(spotify_playlist_track_name,spotify_playlist_artist,spotify_playlist_isrc,spotify_playlist_id))
+#ordre final = track_name artist isrc id
+
+
+
+
+
+#def dump_final():
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def load_spo():
@@ -281,3 +322,44 @@ def load_ytb():
     return(youtube_playlist_track_name_loaded,youtube_playlist_artist_loaded,youtube_playlist_isrc_loaded,youtube_playlist_id_loaded)
 
 
+def get_saved():
+    json_file = open("saved.json","r")
+    saved = json.load(json_file)
+    return saved
+
+
+def compare(saved,youtube,spotify):
+    if saved == youtube and saved == spotify:
+        pass
+    elif saved != spotify:
+        saved = spotify
+        youtube = spotify
+    elif saved != youtube:
+        saved = youtube
+        spotify = youtube
+    return saved,youtube,spotify
+
+
+
+def erase(yt_id,spo_id):
+    haha = []
+    with open("saved.json", "w") as fp:
+        json.dump(haha,fp)
+        fp.close()
+
+
+
+erase(plYTB_id,plSPO_id)
+def update(save_pl,yt_pl,sp_pl):
+    erase()
+
+
+plYTB_id
+plSPO_id
+
+
+spotify_playlist = get_current_spotify()
+youtube_playlist = get_current_ytb()
+saved_playlist = get_saved()
+
+compare(saved_playlist,youtube_playlist,spotify_playlist)
