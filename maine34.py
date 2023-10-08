@@ -84,8 +84,7 @@ def get_current_spotify():    #get current spotify
             get_current_spotify.spotify_playlist_id.append(items['track']['id'])
             spotify_playlist_ytid.append(get_yt_id(items['track']['name'],items['track']['artists'][0]['name']))
         a = [[spotify_playlist_track_name[i], spotify_playlist_artist[i], spotify_playlist_isrc[i],get_current_spotify.spotify_playlist_id[i], spotify_playlist_ytid[i]] for i in range(len(spotify_playlist_track_name))]
-
-    return a
+        return a
 
 
 

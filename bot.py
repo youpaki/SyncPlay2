@@ -1,8 +1,11 @@
-
+import json
 import discord
 import subprocess
 intents = discord.Intents.all()
 client = discord.Client(command_prefix='!', intents=intents)
+
+
+
 
 @client.event
 async def on_ready():
@@ -16,5 +19,12 @@ async def on_message(message):
         subprocess.run(["python","maine34.py"])
         await message.channel.send('synced')
 
+with open("token.json",'r') as fp:
+    token = json.load(fp)
 
-client.run("MTE2MDYyNDA2NjI0NDM5OTI0NA.GSUe7r.8G_7l99NrEWvyCWIuXkh3FOi9oXOyy8cYoiK2k")
+
+
+print(token)
+
+
+client.run(token)
