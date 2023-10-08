@@ -33,11 +33,14 @@ spotify_playlist_id = []
 spotify_playlist_isrc = []
 spotify_playlist_artist = []
 spotify_playlist_track_name = []
+spotify_playlist_ytid = []
 
 youtube_playlist_id = []
 youtube_playlist_isrc = []
 youtube_playlist_artist = []
 youtube_playlist_track_name = []
+youtube_playlist_ytid = []
+
 diffs = []
 
 spotify_playlist_isrc_loaded =[]
@@ -50,44 +53,65 @@ youtube_playlist_track_name_loaded =[]
 youtube_playlist_artist_loaded =[]
 youtube_playlist_id_loaded =[]
 
+
 final_playlist_track_name = []
 final_playlist_artist = []
 final_playlist_isrc = []
 final_playlist_id = []
-
+raw_ytb_pl = []
 separator = '(feat'
 
 
 
 def get_current_spotify():    #get current spotify
+    print("get spo")
+    get_current_spotify.spoplaylist = sp.playlist_items(plSPO_id)
+    spoitemplaylist = get_current_spotify.spoplaylist["items"]
+    get_current_spotify.spotify_playlist_id = []
+    spotify_playlist_isrc = []
+    spotify_playlist_artist = []
+    spotify_playlist_track_name = []
+    spotify_playlist_ytid = []
 
-    spoplaylist = sp.playlist_items(plSPO_id)
-    spoitemplaylist = spoplaylist["items"]
+
     for items in spoitemplaylist:
         spotify_playlist_isrc.append(items['track']['external_ids']['isrc'])
         spotify_playlist_track_name.append(items['track']['name'])
         spotify_playlist_artist.append(items['track']['artists'][0]['name'])
-        spotify_playlist_id.append(get_id(items['track']['name'],items['track']['artists'][0]['name']))
+        get_current_spotify.spotify_playlist_id.append(items['track']['id'])
+        spotify_playlist_ytid.append(get_yt_id(items['track']['external_ids']['isrc']))
+    a = [[spotify_playlist_track_name[i], spotify_playlist_artist[i], spotify_playlist_isrc[i],get_current_spotify.spotify_playlist_id[i], spotify_playlist_ytid[i]] for i in range(len(spotify_playlist_track_name))]
 
-    a = [[spotify_playlist_track_name[i], spotify_playlist_artist[i], spotify_playlist_isrc[i],spotify_playlist_id[i]] for i in range(len(spotify_playlist_track_name))]
+    return a
+
+def get_yt_id(isrc):
+
+    search_results = ytmusic.search(query=isrc, filter= "songs")
+    a = search_results[0]['videoId']
 
     return a
 
 
-
-
 def get_current_ytb():
-    ytresp = ytmusic.get_playlist(playlistId=plYTB_id)
-    ytitem = ytresp['tracks']
+    print("get yt")
+    get_current_ytb.ytresp = ytmusic.get_playlist(playlistId=plYTB_id)
+    ytitem = get_current_ytb.ytresp['tracks']
     k = 0
+    youtube_playlist_id = []
+    youtube_playlist_isrc = []
+    youtube_playlist_artist = []
+    youtube_playlist_track_name = []
+    youtube_playlist_ytid = []
+
     for items in ytitem:
         youtube_playlist_track_name.append(items['title'])
         youtube_playlist_artist.append(items['artists'][0]['name'])
         youtube_playlist_isrc.append(get_isrc_(items['title'],items['artists'][0]['name']))
         youtube_playlist_id.append(get_id(items['title'],items['artists'][0]['name']))
+        youtube_playlist_ytid.append(get_yt_id(get_isrc_(items['title'],items['artists'][0]['name'])))
         k = k+1
 
-    return [[youtube_playlist_track_name[i], youtube_playlist_artist[i], youtube_playlist_isrc[i], youtube_playlist_id[i]]
+    return [[youtube_playlist_track_name[i], youtube_playlist_artist[i], youtube_playlist_isrc[i], youtube_playlist_id[i], youtube_playlist_ytid[i]]
          for i in range(len(youtube_playlist_track_name))]
 
 
@@ -111,6 +135,7 @@ def get_id(track_name,artist):
     query = track_name + "%20artist:" +  artist + '&type=track&limit=1'
     search_results = sp.search(q=query)
     id = search_results['tracks']['items'][0]['id']
+    print(id)
     return(id)
 
 
@@ -173,66 +198,10 @@ def add_spo(id):
 #print(get_current_ytb())
 
 
-def display_playlists():
-
-    k = 0
-    for items in spotify_playlist_id:
-        print(spotify_playlist_id[k])
-        print(spotify_playlist_track_name[k])
-        print(spotify_playlist_artist[k])
-        print(spotify_playlist_isrc[k])
-        k= k + 1
-    k = 0
-    for items in youtube_playlist_id:
-        print(youtube_playlist_id[k])
-        print(youtube_playlist_track_name[k])
-        print(youtube_playlist_artist[k])
-        print(youtube_playlist_isrc[k])
-        k= k + 1
-    k = 0
-    for items in youtube_playlist_id:
-        print(items[k])
-        k = k + 1
 
 
 
 
-def save_spo():
-    with open("spo_isrc.txt", "w") as file:
-        file.truncate()
-        for items in spotify_playlist_isrc:
-            file.write(items)
-    with open("spo_track_name.txt", "w") as file:
-        file.truncate()
-        for items in spotify_playlist_track_name:
-            file.write(items)
-    with open("spo_id.txt", "w") as file:
-        file.truncate()
-        for items in spotify_playlist_id:
-            file.write(items)
-    with open("spo_artist.txt", "w") as file:
-        file.truncate()
-        for items in spotify_playlist_artist:
-            file.write(items)
-
-def save_ytb():
-
-    with open("ytb_isrc.txt", "w") as file:
-        file.truncate()
-        for items in youtube_playlist_isrc:
-            file.write(items)
-    with open("ytb_track_name.txt", "w") as file:
-        file.truncate()
-        for items in youtube_playlist_track_name:
-            file.write(items)
-    with open("ytb_id.txt", "w") as file:
-        file.truncate()
-        for items in youtube_playlist_id:
-            file.write(items)
-    with open("ytb_artist.txt", "w") as file:
-        file.truncate()
-        for items in youtube_playlist_artist:
-            file.write(items)
 
 
 
@@ -262,10 +231,10 @@ def define_track(track_name,artist,isrc,id,pos,):
     track.append(id)
     return(track)
 
-def list_tracks(track_name,artist,isrc,id):
+def list_tracks(track_name,artist,isrc,id,ytid):
     k = 0
     for items in track_name:
-        laliste = define_track(track_name[k],artist[k],isrc[k],id[k],k)
+        laliste = define_track(track_name[k],artist[k],isrc[k],id[k],ytid[k],k)
         k=k+1
     return(laliste)
 
@@ -283,46 +252,15 @@ def list_tracks(track_name,artist,isrc,id):
 
 
 
+def savejson(pl):
+    file = open("saved.json","w")
+    json.dump(pl,file)
+    file.close()
 
-
-
-
-
-
-
-
-def load_spo():
-    with open("spo_isrc.txt", "r") as file:
-        for line in file:
-            spotify_playlist_isrc_loaded.append(line)
-    with open("spo_track_name.txt", "r") as file:
-        for line in file:
-            spotify_playlist_track_name_loaded.append(line)
-    with open("spo_id.txt", "r") as file:
-        for line in file:
-            spotify_playlist_id_loaded.append(line)
-    with open("spo_artist.txt", "r") as file:
-        for line in file:
-            spotify_playlist_artist_loaded.append(line)
-    return(spotify_playlist_track_name_loaded,spotify_playlist_artist_loaded,spotify_playlist_isrc_loaded,spotify_playlist_id_loaded)
-
-def load_ytb():
-    with open("ytb_isrc.txt", "r") as file:
-        for line in file:
-            youtube_playlist_isrc_loaded.append(line)
-    with open("ytb_track_name.txt", "r") as file:
-        for line in file:
-            youtube_playlist_track_name_loaded.append(line)
-    with open("ytb_id.txt", "r") as file:
-        for line in file:
-            youtube_playlist_id_loaded.append(line)
-    with open("ytb_artist.txt", "r") as file:
-        for line in file:
-            youtube_playlist_artist_loaded.append(line)
-    return(youtube_playlist_track_name_loaded,youtube_playlist_artist_loaded,youtube_playlist_isrc_loaded,youtube_playlist_id_loaded)
 
 
 def get_saved():
+    print("get saved")
     json_file = open("saved.json","r")
     saved = json.load(json_file)
     return saved
@@ -330,36 +268,86 @@ def get_saved():
 
 def compare(saved,youtube,spotify):
     if saved == youtube and saved == spotify:
+        print("comapre1")
         pass
-    elif saved != spotify:
+    if saved != spotify:
+        print("compare2")
         saved = spotify
         youtube = spotify
-    elif saved != youtube:
+    if saved != youtube:
+        print("comapre3")
         saved = youtube
         spotify = youtube
+
     return saved,youtube,spotify
 
 
 
 def erase(yt_id,spo_id):
+
     haha = []
+    yt_id_list = []
     with open("saved.json", "w") as fp:
         json.dump(haha,fp)
         fp.close()
 
 
+    if youtube_playlist != []:
+        for items in youtube_playlist:
+            yt_id_list.append(items[4])
+        ytmusic.remove_playlist_items(yt_id,get_current_ytb.ytresp["tracks"])
+    else:
+        pass
+    k=0
+    if spotify_playlist != []:
+        sp.playlist_remove_all_occurrences_of_items(playlist_id=plSPO_id, items=get_current_spotify.spotify_playlist_id)
+    else:
+        pass
 
-erase(plYTB_id,plSPO_id)
+
+
+
 def update(save_pl,yt_pl,sp_pl):
-    erase()
+    print(save_pl,yt_pl,sp_pl)
+    erase(plYTB_id,plSPO_id)
+    savejson(save_pl)
+    dump_spo(sp_pl)
+    dump_yt(yt_pl)
+    print("updated")
 
 
-plYTB_id
-plSPO_id
+
+
+def dump_spo(pl):
+    print("dump spo")
+    print(pl)
+    ids = []
+    for items in pl:
+        ids.append(items[3])
+    sp.playlist_add_items(plSPO_id, ids)
+
+
+
+
+def dump_yt(pl):
+    print(pl)
+    print("dump yt")
+    ids = []
+    for items in pl:
+        ids.append(items[4])
+    for items in ids:
+        ytmusic.add_playlist_items(plYTB_id,items)
+
+
 
 
 spotify_playlist = get_current_spotify()
 youtube_playlist = get_current_ytb()
 saved_playlist = get_saved()
+#compared  = compare(saved_playlist,youtube_playlist,spotify_playlist)
+#update(compared[0],compared[1],compared[2])
 
-compare(saved_playlist,youtube_playlist,spotify_playlist)
+
+
+
+
