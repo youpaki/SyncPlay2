@@ -2,6 +2,7 @@ import os
 import spotipy
 import logging
 import json
+import time
 from ytmusicapi import YTMusic
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -73,23 +74,20 @@ def get_current_spotify():    #get current spotify
     spotify_playlist_track_name = []
     spotify_playlist_ytid = []
 
-
-    for items in spoitemplaylist:
-        spotify_playlist_isrc.append(items['track']['external_ids']['isrc'])
-        spotify_playlist_track_name.append(items['track']['name'])
-        spotify_playlist_artist.append(items['track']['artists'][0]['name'])
-        get_current_spotify.spotify_playlist_id.append(items['track']['id'])
-        spotify_playlist_ytid.append(get_yt_id(items['track']['external_ids']['isrc']))
-    a = [[spotify_playlist_track_name[i], spotify_playlist_artist[i], spotify_playlist_isrc[i],get_current_spotify.spotify_playlist_id[i], spotify_playlist_ytid[i]] for i in range(len(spotify_playlist_track_name))]
-
-    return a
-
-def get_yt_id(isrc):
-
-    search_results = ytmusic.search(query=isrc, filter= "songs")
-    a = search_results[0]['videoId']
+    if spoitemplaylist == []:
+        pass
+    else:
+        for items in spoitemplaylist:
+            spotify_playlist_isrc.append(items['track']['external_ids']['isrc'])
+            spotify_playlist_track_name.append(items['track']['name'])
+            spotify_playlist_artist.append(items['track']['artists'][0]['name'])
+            get_current_spotify.spotify_playlist_id.append(items['track']['id'])
+            spotify_playlist_ytid.append(get_yt_id(items['track']['name'],items['track']['artists'][0]['name']))
+        a = [[spotify_playlist_track_name[i], spotify_playlist_artist[i], spotify_playlist_isrc[i],get_current_spotify.spotify_playlist_id[i], spotify_playlist_ytid[i]] for i in range(len(spotify_playlist_track_name))]
 
     return a
+
+
 
 
 def get_current_ytb():
@@ -102,14 +100,16 @@ def get_current_ytb():
     youtube_playlist_artist = []
     youtube_playlist_track_name = []
     youtube_playlist_ytid = []
-
-    for items in ytitem:
-        youtube_playlist_track_name.append(items['title'])
-        youtube_playlist_artist.append(items['artists'][0]['name'])
-        youtube_playlist_isrc.append(get_isrc_(items['title'],items['artists'][0]['name']))
-        youtube_playlist_id.append(get_id(items['title'],items['artists'][0]['name']))
-        youtube_playlist_ytid.append(get_yt_id(get_isrc_(items['title'],items['artists'][0]['name'])))
-        k = k+1
+    if ytitem == []:
+        pass
+    else:
+        for items in ytitem:
+            youtube_playlist_track_name.append(items['title'])
+            youtube_playlist_artist.append(items['artists'][0]['name'])
+            youtube_playlist_isrc.append(get_isrc_(items['title'],items['artists'][0]['name']))
+            youtube_playlist_id.append(get_id(items['title'],items['artists'][0]['name']))
+            youtube_playlist_ytid.append(items["videoId"])
+            k = k+1
 
     return [[youtube_playlist_track_name[i], youtube_playlist_artist[i], youtube_playlist_isrc[i], youtube_playlist_id[i], youtube_playlist_ytid[i]]
          for i in range(len(youtube_playlist_track_name))]
@@ -117,7 +117,14 @@ def get_current_ytb():
 
 
 
+def get_yt_id(track_name,artist):
+    query = artist + " " + track_name
+    print(query)
+    search_results = ytmusic.search(query=query, filter= "songs",limit=1,ignore_spelling=True)
+    print(search_results)
+    a = search_results[0]['videoId']
 
+    return a
 
 
 
@@ -335,8 +342,8 @@ def dump_yt(pl):
     ids = []
     for items in pl:
         ids.append(items[4])
-    for items in ids:
-        ytmusic.add_playlist_items(plYTB_id,items)
+    print(ids)
+    ytmusic.add_playlist_items(plYTB_id,ids)
 
 
 
@@ -344,9 +351,9 @@ def dump_yt(pl):
 spotify_playlist = get_current_spotify()
 youtube_playlist = get_current_ytb()
 saved_playlist = get_saved()
-#compared  = compare(saved_playlist,youtube_playlist,spotify_playlist)
-#update(compared[0],compared[1],compared[2])
 
+compared  = compare(saved_playlist,youtube_playlist,spotify_playlist)
+update(compared[0],compared[1],compared[2])
 
 
 
