@@ -16,7 +16,7 @@ async def on_message(message):
         return
 
     if message.content.startswith('sync'):
-        subprocess.run(["python","maine34.py"])
+        subprocess.run(["python","main.py"])
         await message.channel.send('synced')
 
 with open("token.json",'r') as fp:
