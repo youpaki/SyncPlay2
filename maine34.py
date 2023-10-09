@@ -65,7 +65,6 @@ separator = '(feat'
 
 
 def get_current_spotify():    #get current spotify
-    print("get spo")
     get_current_spotify.spoplaylist = sp.playlist_items(plSPO_id)
     spoitemplaylist = get_current_spotify.spoplaylist["items"]
     get_current_spotify.spotify_playlist_id = []
@@ -90,7 +89,6 @@ def get_current_spotify():    #get current spotify
 
 
 def get_current_ytb():
-    print("get yt")
     get_current_ytb.ytresp = ytmusic.get_playlist(playlistId=plYTB_id)
     ytitem = get_current_ytb.ytresp['tracks']
     k = 0
@@ -118,9 +116,7 @@ def get_current_ytb():
 
 def get_yt_id(track_name,artist):
     query = artist + " " + track_name
-    print(query)
     search_results = ytmusic.search(query=query, filter= "songs",limit=1,ignore_spelling=True)
-    print(search_results)
     a = search_results[0]['videoId']
 
     return a
@@ -141,7 +137,6 @@ def get_id(track_name,artist):
     query = track_name + "%20artist:" +  artist + '&type=track&limit=1'
     search_results = sp.search(q=query)
     id = search_results['tracks']['items'][0]['id']
-    print(id)
     return(id)
 
 
@@ -150,28 +145,6 @@ def compare_isrc(youtube_isrc,spotify_isrc):
         return(0)
     else:
         return(youtube_isrc,spotify_isrc)
-
-
-def compare (ytb_input,spo_input):
-    k=0
-    diffs = []
-    add_ytb = []
-    add_spo = []
-    for items in ytb_input:
-        diffs.append(compare_isrc(ytb_input[k],spo_input[k]))
-        k=k+1
-    for items in diffs:
-        if check_ytb(items,ytb_input) == False:
-            add_ytb.append(items)
-        else:
-            print("boah")
-        if check_spo(items,spo_input) == False:
-            add_spo.append(items)
-        else:
-            print("boba")
-    return(add_ytb,add_spo)
-
-
 
 def check_ytb(isrc,ytb):
     if isrc in ytb:
@@ -192,19 +165,6 @@ def add_spo(id):
 
 
 
-#print(get_isrc_("Doja","Central Cee"))
-#print(convert_isrc_id())
-
-
-#print(get_current_ytb())
-#print(get_current_spotify())
-
-#print(compare(get_current_spotify(),get_current_ytb()))
-#print(get_current_spotify())
-#print(get_current_ytb())
-
-
-
 
 
 
@@ -221,10 +181,6 @@ def merde():
     spotify_playlist_isrc = current_spo[2]
     spotify_playlist_id = current_spo[3]
 
-    final_playlist_track_name = spotify_playlist_track_name
-    final_playlist_artist = spotify_playlist_artist
-    final_playlist_isrc = spotify_playlist_isrc
-    final_playlist_id = spotify_playlist_id
 
 
 def define_track(track_name,artist,isrc,id,pos,):
@@ -266,7 +222,6 @@ def savejson(pl):
 
 
 def get_saved():
-    print("get saved")
     json_file = open("saved.json","r")
     saved = json.load(json_file)
     return saved
@@ -274,14 +229,11 @@ def get_saved():
 
 def compare(saved,youtube,spotify):
     if saved == youtube and saved == spotify:
-        print("comapre1")
         pass
     if saved != spotify:
-        print("compare2")
         saved = spotify
         youtube = spotify
     if saved != youtube:
-        print("comapre3")
         saved = youtube
         spotify = youtube
 
@@ -314,7 +266,6 @@ def erase(yt_id,spo_id):
 
 
 def update(save_pl,yt_pl,sp_pl):
-    print(save_pl,yt_pl,sp_pl)
     erase(plYTB_id,plSPO_id)
     savejson(save_pl)
     dump_spo(sp_pl)
@@ -325,8 +276,6 @@ def update(save_pl,yt_pl,sp_pl):
 
 
 def dump_spo(pl):
-    print("dump spo")
-    print(pl)
     ids = []
     for items in pl:
         ids.append(items[3])
@@ -336,12 +285,9 @@ def dump_spo(pl):
 
 
 def dump_yt(pl):
-    print(pl)
-    print("dump yt")
     ids = []
     for items in pl:
         ids.append(items[4])
-    print(ids)
     ytmusic.add_playlist_items(plYTB_id,ids)
 
 
